@@ -68,6 +68,7 @@ function websocketStatus(address) {
         return new Promise(function (resolve, reject) {
             socket.onmessage = function(e) {
                 const returnedMessage = protoFile.build("Response").decode(e.data);
+                socket.close();
 
                 resolve(returnedMessage);
             };
@@ -96,7 +97,7 @@ function websocketSign(address, file) {
         console.log("The opening of the WebSocket doesn't go well. Ready State constant: "+ socket.readyState);
     }
 
-    socket.onopen = function onOpen() {
+    socket.onopen = function onOpen(e) {
         const signMsgProto = protoFile.build("SignatureRequest");
         const rosterProto = protoFile.build("Roster");
         const siProto = protoFile.build("ServerIdentity");
@@ -105,7 +106,7 @@ function websocketSign(address, file) {
             nacl_factory.instantiate(function (nacl) {
                 // Create a list of ServerIdentities for the roster
                 let agg = [];
-                if (window.listNodes.length === 6) {
+                if (window.listNodes.length === 2) {
                     // remove the alert if it is displayed
                     if ($("#file_size_alert_window").length !== 0) {
                         $("#file_size_alert").empty();
@@ -117,6 +118,7 @@ function websocketSign(address, file) {
                         const pub = new Uint8Array(server.public.toArrayBuffer());
                         // multiply the x-axis of point with -1, because TweetNaCl.js doesn’t have unpack, only unpackneg
                         pub[31] ^= 128;
+                        // the point is represented as a 2-dimensional array
                         const pubPos = [gf(), gf(), gf(), gf()]; // zero-point
                         unpackneg(pubPos, pub);
                         if (index === 0) {

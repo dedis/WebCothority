@@ -2,6 +2,10 @@
  * MAIN
  */
 
+// list of contacted conode's addresses
+const listAddresses = ["78.46.227.60:7771", "192.33.210.8:7771",
+"185.26.156.40:61117"];
+
 $(document).ready(function () {
 
     /**
@@ -20,7 +24,8 @@ $(document).ready(function () {
         const file = this;
         runGenerator(function* waitingFile() {
             const fileAsArrayBuffer = yield takeCareOf(file.files[0], true);
-            const message = yield websocketSign("localhost:7003", fileAsArrayBuffer);
+            console.log("Asking to sign " + listAddresses[0]);
+            const message = yield websocketSign(listAddresses[0], fileAsArrayBuffer);
 
             saveToFile(fileAsArrayBuffer, getFilename(file.value), message);
         });

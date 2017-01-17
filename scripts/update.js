@@ -28,6 +28,7 @@ function updateTable(listNodes) {
 
     $.each(listNodes, function(i, node) {
         table.append("<tr><td>"+ node.description +"</td>" +
+            "<td>"+ node.host +"</td>" +
             "<td>"+ node.connType +"</td>" +
             "<td>"+ node.port +"</td><" +
             "td>"+ displayPrettyDate(node.uptime) +"</td>" +

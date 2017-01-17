@@ -3,9 +3,6 @@
  */
 function updateList() {
     runGenerator(function* generator() {
-        // list of contacted conode's addresses
-        const listAddresses = ["localhost:7003", "localhost:7005", "localhost:7007",
-            "localhost:7009", "localhost:7011", "localhost:7013"];
         window.listNodes = [];
 
         for (let address of listAddresses) {

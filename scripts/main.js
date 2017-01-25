@@ -2,20 +2,22 @@
  * MAIN
  */
 
-// list of contacted conode's addresses
+// list of contacted conodes addresses
 const listAddresses = ["78.46.227.60:7771", "192.33.210.8:7771",
-"185.26.156.40:61117"];
+"185.26.156.40:61117", "5.135.161.91:2001", "83.212.82.23:6790",
+"46.101.254.191:6880", "95.143.172.241:62307"];
 
 $(document).ready(function () {
 
     /**
      * Status part
      */
-    updateList();
-    // next call each 3 seconds the updateList() function:
-    setInterval(function () {
-        updateList();
-    }, 3000);
+    window.listNodes = []
+    listAddresses.forEach(function(addr, index){
+    	window.setTimeout(function(){startUpdateAddress(addr, index)}, 1000);
+    	window.listNodes[index] = {"description": "Contacting", "host": addr};
+    })
+    update();
 
     /**
      * Signature part

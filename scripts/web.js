@@ -74,7 +74,9 @@ function websocketStatus(address) {
             };
 
             socket.onerror = function (e) {
-                reject(e);
+            	socket.close();
+//                reject(e);
+				resolve(null)
             };
         });
     }
@@ -106,44 +108,44 @@ function websocketSign(address, file) {
             nacl_factory.instantiate(function (nacl) {
                 // Create a list of ServerIdentities for the roster
                 let agg = [];
-                if (window.listNodes.length === 2) {
-                    // remove the alert if it is displayed
-                    if ($("#file_size_alert_window").length !== 0) {
-                        $("#file_size_alert").empty();
-                    }
-
-                    const listServers = window.listNodes.map(function(node, index) {
-                        const server = node.server;
-                        // public key of a server
-                        const pub = new Uint8Array(server.public.toArrayBuffer());
-                        // multiply the x-axis of point with -1, because TweetNaCl.js doesn’t have unpack, only unpackneg
-                        pub[31] ^= 128;
-                        // the point is represented as a 2-dimensional array
-                        const pubPos = [gf(), gf(), gf(), gf()]; // zero-point
-                        unpackneg(pubPos, pub);
-                        if (index === 0) {
-                            agg = pubPos;
-                        } else {
-                            // add pubPos to agg, storing result in agg
-                            add(agg, pubPos);
-                        }
-                        return new siProto({public: server.public, id: server.id, address: server.address,
-                            description: server.description});
-                    });
-                    pack(aggKey, agg);
-
-                    const rosterMsg = new rosterProto({list: listServers});
-                    // Calculate the hash and create the SignatureRequest
-                    const hash = nacl.crypto_hash_sha256(bytesToHex(file));
-                    const signMsg = new signMsgProto({roster: rosterMsg, message: hash});
-                    socket.send(signMsg.toArrayBuffer());
-                } else {
-                    // timeout of 50ms because all the status of each conodes are not completed
-                    setTimeout(onOpen, 50);
+                var nodes = listNodes.filter(function(node){
+                	return node != null;
+                })
+                console.log(nodes)
+                // remove the alert if it is displayed
+                if ($("#file_size_alert_window").length !== 0) {
+                    $("#file_size_alert").empty();
                 }
+
+                const listServers = nodes.map(function(node, index) {
+                    const server = node.server;
+                    // public key of a server
+                    const pub = new Uint8Array(server.public.toArrayBuffer());
+                    // multiply the x-axis of point with -1, because TweetNaCl.js doesn’t have unpack, only unpackneg
+                    pub[31] ^= 128;
+                    // the point is represented as a 2-dimensional array
+                    const pubPos = [gf(), gf(), gf(), gf()]; // zero-point
+                    unpackneg(pubPos, pub);
+                    if (index === 0) {
+                        agg = pubPos;
+                    } else {
+                        // add pubPos to agg, storing result in agg
+                        add(agg, pubPos);
+                    }
+                    return new siProto({public: server.public, id: server.id, address: server.address,
+                        description: server.description});
+                });
+                pack(aggKey, agg);
+
+                const rosterMsg = new rosterProto({list: listServers});
+                // Calculate the hash and create the SignatureRequest
+                const hash = nacl.crypto_hash_sha256(bytesToHex(file));
+                const signMsg = new signMsgProto({roster: rosterMsg, message: hash});
+                socket.send(signMsg.toArrayBuffer());
             });
         } catch(err) {
             // alert appears if the file is too big (for the TweetNaCl.js library heap)
+            console.log(err)
             if ($("#file_size_alert_window").length === 0) {
                 $("#file_size_alert").append("<div class='alert alert-danger alert-dismissible fade in'" +
                     "id='file_size_alert_window'>"

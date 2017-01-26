@@ -14,10 +14,12 @@ $(document).ready(function () {
      */
     window.listNodes = []
     listAddresses.forEach(function(addr, index){
-    	window.setTimeout(function(){startUpdateAddress(addr, index)}, 1000);
+    	startUpdateAddress(addr, index);
     	window.listNodes[index] = {"description": "Contacting", "host": addr};
     })
     update();
+    window.setTimeout(update, 1000);
+    window.setInterval(update, 10000);
 
     /**
      * Signature part

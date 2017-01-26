@@ -19,7 +19,6 @@ function startUpdateAddress(addr, index){
 //       	console.log("" + index + ": message is" + message);
   		listNodes[index] = message;
 //  		console.log("Updated " + addr)
-        update();
     });
     window.setTimeout(function(){startUpdateAddress(addr, index)},
     	3000 + index * 500)
@@ -37,7 +36,7 @@ function update() {
     for (let i = 0; i < listNodes.length; i++) {
     	var node = window.listNodes[i]
     	if (node && node.rx_bytes != null){
-        	totalTraffic += (parseInt(node.rx_bytes) + parseInt(node.tx_bytes));
+        	totalTraffic += trafficHour(node);
         }
        	nodes.push(node);
     }
@@ -64,7 +63,7 @@ function updateTable(nodes) {
             	"<td>"+ node.connType +"</td>" +
             	"<td>"+ node.port +"</td>" +
             	"<td>"+ displayPrettyDate(node.uptime) +"</td>" +
-            	"<td>"+ (parseInt(node.rx_bytes) + parseInt(node.tx_bytes)) +"</td>" +
+            	"<td>"+ trafficHour(node) +"</td>" +
             	"<td>" + helperNumberOfServices(node) + "</td>" +
             	"<td>"+ node.version +"</td></tr>");
         } else {

@@ -71,63 +71,50 @@ function fromBase64toUint8Array(base64) {
  * @returns {string}      'pretty' string
  */
 function displayPrettyDate(dateToParse) {
-    const listNumbers = ["0","1","2","3","4","5","6","7","8","9"];
-    let buffer = "";
-    let years = "";
-    let months = "";
-    let days = "";
-    let hours = "";
-    let minutes = "";
-    let seconds = "";
-    let milliseconds = "";
-
-    for (let i = 0; i < dateToParse.length; i++) {
-        if (listNumbers.indexOf(dateToParse[i]) != -1) {
-            buffer = buffer.concat(dateToParse[i]);
-        } else {
-            if (dateToParse[i] === ".") {
-                seconds = buffer;
-                if (seconds.length == 1) {
-                    seconds = "0" + seconds;
-                }
-            } else if (dateToParse[i] === "s") {
-                milliseconds = buffer.slice(0,2);
-            }
-            else if (dateToParse[i] === "m") {
-                minutes = buffer;
-                if (minutes.length == 1) {
-                    minutes = "0" + minutes;
-                }
-            } else if (dateToParse[i] === "h") {
-                hours = buffer;
-            } else if (dateToParse[i] === "d") {
-                days = buffer;
-            } else if (dateToParse[i] === "mo") {
-                months = buffer;
-            } else if (dateToParse[i] === "y") {
-                years = buffer;
-            }
-            buffer = "";
-        }
-    }
-
-    let date = seconds +"."+ milliseconds;
-    if (minutes != "") {
-        date = minutes +":"+ date;
-    }
-    if (hours != "") {
-        date = hours +":"+ date;
-    }
-    if (days != "") {
-        date = days +"d. "+ date;
-    }
-    if (months != "") {
-        date = months +"m. "+ date;
-    }
-    if (years != "") {
-        date = years +"y. " + date;
-    }
-
+	var t = dateToSeconds(dateToParse);
+	var hour = Math.floor(t / 3600);
+	var date = "" + intPad0( hour % 24 ) + ":" + intPad0(t / 60 % 60) + ":" +
+		intPad0(t % 60);
+	var days = Math.floor( hour / 24 );
+	if ( days > 0 ){
+		date = "" + days % 7 + "d " + date;
+	}
+	var weeks = Math.floor( days / 7 );
+	if ( weeks > 0 ){
+		date = "" + weeks + "w " + date;
+	}
     return date;
 }
 
+/**
+ * Takes a date from golang-format "xxhxxmxx.xxxxs" and returns integer-seconds
+ */
+function dateToSeconds(date){
+	var t = date.split(/[hm\.]/);
+	// remove milliseconds
+	t.pop();
+	var sec = t.pop();
+	var min = t.pop();
+	var hour = t.pop();
+	return hour * 3600 + min * 60 + sec * 1;
+}
+
+/**
+ * Takes the integer of i, then zero-pads on the left to make 2-digit number
+ */
+function intPad0(i){
+	var j = Math.floor(i);
+	if ( j < 10 ){
+		return "0" + j;
+	}
+	return j;
+}
+
+/**
+ * Returns the traffic per hour in bytes
+ */
+function trafficHour(node){
+	var traffic = (parseInt(node.rx_bytes) + parseInt(node.tx_bytes));
+	traffic = Math.floor(traffic / ( dateToSeconds(node.uptime) / 3600) );
+	return traffic;
+}

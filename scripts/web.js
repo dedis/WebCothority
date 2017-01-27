@@ -48,7 +48,7 @@ const protoFile = ProtoBuf.loadProto(`
  * @returns {*}      status information inside a Promise object
  */
 function websocketStatus(address) {
-    const socket = new WebSocket("ws://"+ address + "/Status/Request");
+    let socket = new WebSocket("ws://"+ address + "/Status/Request");
     socket.binaryType = "arraybuffer";
 
     if (socket.readyState != 0 && socket.readyState != 1) {
@@ -56,10 +56,10 @@ function websocketStatus(address) {
     }
 
     socket.onopen = function () {
-        const requestProto = protoFile.build("Request");
-        const request = new requestProto({});
-        const requestHex = request.encode().toHex();
-        const bytes = hexToBytes(requestHex);
+        let requestProto = protoFile.build("Request");
+        let request = new requestProto({});
+        let requestHex = request.encode().toHex();
+        let bytes = hexToBytes(requestHex);
         socket.send(bytes);
     };
 
@@ -67,7 +67,7 @@ function websocketStatus(address) {
     function loadReceivedMessage() {
         return new Promise(function (resolve, reject) {
             socket.onmessage = function(e) {
-                const returnedMessage = protoFile.build("Response").decode(e.data);
+                let returnedMessage = protoFile.build("Response").decode(e.data);
                 socket.close();
 
                 resolve(returnedMessage);
@@ -91,8 +91,8 @@ function websocketStatus(address) {
  * @returns {*}       Array containing signature of the file and the aggregate-key inside a Promise object
  */
 function websocketSign(address, file) {
-    const socket = new WebSocket("ws://"+ address + "/CoSi/SignatureRequest");
-    const aggKey = new Uint8Array(32);
+    let socket = new WebSocket("ws://"+ address + "/CoSi/SignatureRequest");
+    let aggKey = new Uint8Array(32);
     socket.binaryType = "arraybuffer";
 
     if (socket.readyState != 0 && socket.readyState != 1) {
@@ -100,16 +100,16 @@ function websocketSign(address, file) {
     }
 
     socket.onopen = function onOpen(e) {
-        const signMsgProto = protoFile.build("SignatureRequest");
-        const rosterProto = protoFile.build("Roster");
-        const siProto = protoFile.build("ServerIdentity");
+        let signMsgProto = protoFile.build("SignatureRequest");
+        let rosterProto = protoFile.build("Roster");
+        let siProto = protoFile.build("ServerIdentity");
 
         try{
             nacl_factory.instantiate(function (nacl) {
                 // Create a list of ServerIdentities for the roster
                 let agg = [];
-                var nodes = listNodes.filter(function(node){
-                	return node != null;
+                let nodes = listNodes.filter(function(node){
+                	return node != null && node.server != null;
                 })
                 console.log(nodes)
                 // remove the alert if it is displayed
@@ -117,14 +117,14 @@ function websocketSign(address, file) {
                     $("#file_size_alert").empty();
                 }
 
-                const listServers = nodes.map(function(node, index) {
-                    const server = node.server;
+                let listServers = nodes.map(function(node, index) {
+                    let server = node.server;
                     // public key of a server
-                    const pub = new Uint8Array(server.public.toArrayBuffer());
+                    let pub = new Uint8Array(server.public.toArrayBuffer());
                     // multiply the x-axis of point with -1, because TweetNaCl.js doesn’t have unpack, only unpackneg
                     pub[31] ^= 128;
                     // the point is represented as a 2-dimensional array
-                    const pubPos = [gf(), gf(), gf(), gf()]; // zero-point
+                    let pubPos = [gf(), gf(), gf(), gf()]; // zero-point
                     unpackneg(pubPos, pub);
                     if (index === 0) {
                         agg = pubPos;
@@ -137,10 +137,10 @@ function websocketSign(address, file) {
                 });
                 pack(aggKey, agg);
 
-                const rosterMsg = new rosterProto({list: listServers});
+                let rosterMsg = new rosterProto({list: listServers});
                 // Calculate the hash and create the SignatureRequest
-                const hash = nacl.crypto_hash_sha256(bytesToHex(file));
-                const signMsg = new signMsgProto({roster: rosterMsg, message: hash});
+                let hash = nacl.crypto_hash_sha256(bytesToHex(file));
+                let signMsg = new signMsgProto({roster: rosterMsg, message: hash});
                 socket.send(signMsg.toArrayBuffer());
             });
         } catch(err) {
@@ -161,7 +161,7 @@ function websocketSign(address, file) {
     function loadReceivedMessage() {
         return new Promise(function (resolve, reject) {
             socket.onmessage = function(e) {
-                const returnedMessage = [protoFile.build("SignatureResponse").decode(e.data), aggKey];
+                let returnedMessage = [protoFile.build("SignatureResponse").decode(e.data), aggKey];
 
                 resolve(returnedMessage);
             };

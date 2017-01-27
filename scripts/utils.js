@@ -9,7 +9,7 @@
  */
 function hexToBytes(hex) {
     // conversion to a binary array:
-    const byteArray = new Uint8Array(hex.length / 2);
+    let byteArray = new Uint8Array(hex.length / 2);
     for (let i = 0; i < byteArray.length; i++) {
         // conversion du string en bits avec parseInt:
         byteArray[i] = parseInt(hex.substr(i * 2, 2), 16);
@@ -25,7 +25,7 @@ function hexToBytes(hex) {
  */
 function bytesToHex(byteArray) {
     // conversion to a binary b:
-    const ua = new Uint8Array(byteArray);
+    let ua = new Uint8Array(byteArray);
     let h = '0x';
     for (let i = 0; i < ua.length; i++) {
         h += ("0"+ ua[i].toString(16)).slice(-2)+ " ";
@@ -71,15 +71,15 @@ function fromBase64toUint8Array(base64) {
  * @returns {string}      'pretty' string
  */
 function displayPrettyDate(dateToParse) {
-	var t = dateToSeconds(dateToParse);
-	var hour = Math.floor(t / 3600);
-	var date = "" + intPad0( hour % 24 ) + ":" + intPad0(t / 60 % 60) + ":" +
+	let t = dateToSeconds(dateToParse);
+	let hour = Math.floor(t / 3600);
+	let date = "" + intPad0( hour % 24 ) + ":" + intPad0(t / 60 % 60) + ":" +
 		intPad0(t % 60);
-	var days = Math.floor( hour / 24 );
+	let days = Math.floor( hour / 24 );
 	if ( days > 0 ){
 		date = "" + days % 7 + "d " + date;
 	}
-	var weeks = Math.floor( days / 7 );
+	let weeks = Math.floor( days / 7 );
 	if ( weeks > 0 ){
 		date = "" + weeks + "w " + date;
 	}
@@ -90,12 +90,12 @@ function displayPrettyDate(dateToParse) {
  * Takes a date from golang-format "xxhxxmxx.xxxxs" and returns integer-seconds
  */
 function dateToSeconds(date){
-	var t = date.split(/[hm\.]/);
+	let t = date.split(/[hm\.]/);
 	// remove milliseconds
 	t.pop();
-	var sec = t.pop();
-	var min = t.pop();
-	var hour = t.pop();
+	let sec = t.pop();
+	let min = t.pop();
+	let hour = t.pop();
 	return hour * 3600 + min * 60 + sec * 1;
 }
 
@@ -103,7 +103,7 @@ function dateToSeconds(date){
  * Takes the integer of i, then zero-pads on the left to make 2-digit number
  */
 function intPad0(i){
-	var j = Math.floor(i);
+	let j = Math.floor(i);
 	if ( j < 10 ){
 		return "0" + j;
 	}
@@ -113,8 +113,8 @@ function intPad0(i){
 /**
  * Returns the traffic per hour in bytes
  */
-function trafficHour(node){
-	var traffic = (parseInt(node.rx_bytes) + parseInt(node.tx_bytes));
-	traffic = Math.floor(traffic / ( dateToSeconds(node.uptime) / 3600) );
+function trafficSec(node){
+	let traffic = (parseInt(node.rx_bytes) + parseInt(node.tx_bytes));
+	traffic = Math.floor(traffic / ( dateToSeconds(node.uptime)) );
 	return traffic;
 }

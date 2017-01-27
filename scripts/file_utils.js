@@ -6,7 +6,7 @@
  * @returns {*}           a Promise containing the read file
  */
 function takeCareOf(file, asArrayBuffer) {
-    const reader = new FileReader();
+    let reader = new FileReader();
 
     function loadFile() {
         // usage of a Promise:
@@ -38,12 +38,12 @@ function takeCareOf(file, asArrayBuffer) {
 function saveToFile(fileSigned, filename, message) {
     // instantiate the nacl module:
     nacl_factory.instantiate(function (nacl) {
-        const signature = new Uint8Array(message[0].signature.toArrayBuffer());
-        const hash = nacl.crypto_hash_sha256(bytesToHex(fileSigned)); // typeof: Uint8Array
+        let signature = new Uint8Array(message[0].signature.toArrayBuffer());
+        let hash = nacl.crypto_hash_sha256(bytesToHex(fileSigned)); // typeof: Uint8Array
 
-        const signatureBase64 = btoa(String.fromCharCode.apply(null, signature));
-        const aggregateKeyBase64 = btoa(String.fromCharCode.apply(null, message[1]));
-        const hashBase64 = btoa(String.fromCharCode.apply(null, hash));
+        let signatureBase64 = btoa(String.fromCharCode.apply(null, signature));
+        let aggregateKeyBase64 = btoa(String.fromCharCode.apply(null, message[1]));
+        let hashBase64 = btoa(String.fromCharCode.apply(null, hash));
 
         // if the download button doesn't exist: create it
         if ($("#download_button").length === 0) {
@@ -68,12 +68,12 @@ function saveToFile(fileSigned, filename, message) {
  */
 function downloadJSONFile(filename, signature, aggregateKey, hash) {
     // today date in format: mm/dd/yyyy
-    const currentTime = new Date();
-    const day = currentTime.getDay();
-    const month = currentTime.getMonth()+1; // January is number 0
-    const year = currentTime.getFullYear();
+    let currentTime = new Date();
+    let day = currentTime.getDay();
+    let month = currentTime.getMonth()+1; // January is number 0
+    let year = currentTime.getFullYear();
 
-    const jsonFile = {
+    let jsonFile = {
         filename: filename,
         date: day +"/"+ month +"/"+ year,
         signature: signature,
@@ -81,13 +81,13 @@ function downloadJSONFile(filename, signature, aggregateKey, hash) {
         hash: hash
     };
 
-    const blob = new Blob([JSON.stringify(jsonFile, null, 5)], {type: 'application/json'});
+    let blob = new Blob([JSON.stringify(jsonFile, null, 5)], {type: 'application/json'});
 
     if (window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveBlob(blob, filename);
     }
     else {
-        const elem = window.document.createElement('a');
+        let elem = window.document.createElement('a');
         elem.href = window.URL.createObjectURL(blob);
         elem.download = "signature_of_" + filename +".json";
         document.body.appendChild(elem);

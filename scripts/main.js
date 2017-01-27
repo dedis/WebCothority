@@ -3,9 +3,14 @@
  */
 
 // list of contacted conodes addresses
-const listAddresses = ["78.46.227.60:7771", "192.33.210.8:7771",
-"185.26.156.40:61117", "5.135.161.91:2001", "83.212.82.23:6790",
-"46.101.254.191:6880", "95.143.172.241:62307"];
+const listAddresses = [
+["78.46.227.60:7771", "Ineiti's server"],
+["192.33.210.8:7771", "EPFL/DEDIS Conode"],
+["185.26.156.40:61117", "Ismail's Conode"],
+["5.135.161.91:2001",  "Nikkolasg's server Cothority"],
+["83.212.82.23:6790", "Lefteris"],
+["46.101.254.191:6880",  "Kirills"],
+["95.143.172.241:62307", "Daeinar's Conode"] ];
 
 $(document).ready(function () {
 
@@ -15,7 +20,8 @@ $(document).ready(function () {
     window.listNodes = []
     listAddresses.forEach(function(addr, index){
     	startUpdateAddress(addr, index);
-    	window.listNodes[index] = {"description": "Contacting", "host": addr};
+    	window.listNodes[index] = {"description": addr[1], "host": addr[0],
+    	"uptime": "Contacting"};
     })
     update();
     window.setTimeout(update, 1000);
@@ -25,11 +31,11 @@ $(document).ready(function () {
      * Signature part
      */
     $("#signature_fileInput").change(function() {
-        const file = this;
+        let file = this;
         runGenerator(function* waitingFile() {
-            const fileAsArrayBuffer = yield takeCareOf(file.files[0], true);
+            let fileAsArrayBuffer = yield takeCareOf(file.files[0], true);
             console.log("Asking to sign " + listAddresses[0]);
-            const message = yield websocketSign(listAddresses[0], fileAsArrayBuffer);
+            let message = yield websocketSign(listAddresses[0], fileAsArrayBuffer);
 
             saveToFile(fileAsArrayBuffer, getFilename(file.value), message);
         });
@@ -40,17 +46,17 @@ $(document).ready(function () {
      * Verification part
      */
     $("#verify_file_fileInput").change(function() {
-        const file = this;
+        let file = this;
 
         runGenerator(function* waitingFile() {
-            const fileAsArrayBuffer = yield takeCareOf(file.files[0], true);
+            let fileAsArrayBuffer = yield takeCareOf(file.files[0], true);
 
             $("#verify_signature_fileInput").change(function() {
-                const file = this;
+                let file = this;
 
                 runGenerator(function* waitingFile() {
-                    const signatureAsString = yield takeCareOf(file.files[0], false);
-                    const filename = getFileExtension(file.files[0].name);
+                    let signatureAsString = yield takeCareOf(file.files[0], false);
+                    let filename = getFileExtension(file.files[0].name);
 
                     // Verify that the second file has .json extension, if not display a warning
                     if (warningNotJSON(filename) === true) {
@@ -65,17 +71,17 @@ $(document).ready(function () {
     });
 
     $("#verify_signature_fileInput").change(function() {
-        const file = this;
+        let file = this;
 
         runGenerator(function* waitingFile() {
-            const signatureAsString = yield takeCareOf(file.files[0], false);
-            const filename = getFileExtension(file.files[0].name);
+            let signatureAsString = yield takeCareOf(file.files[0], false);
+            let filename = getFileExtension(file.files[0].name);
 
             $("#verify_file_fileInput").change(function() {
-                const file = this;
+                let file = this;
 
                 runGenerator(function* waitingFile() {
-                    const fileAsArrayBuffer = yield takeCareOf(file.files[0], true);
+                    let fileAsArrayBuffer = yield takeCareOf(file.files[0], true);
 
                     // Verify that the second file has .json extension, if not display a warning
                     if (warningNotJSON(filename) === true) {

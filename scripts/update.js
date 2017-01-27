@@ -4,14 +4,17 @@
  * addr is "ip:port"
  * index is an index in the global listNodes
  */
-function startUpdateAddress(addr, index){
+function startUpdateAddress(host, index){
+	let addr = host[0];
+	let name = host[1];
     runGenerator(function* generator() {
-       	var message = yield websocketStatus(addr);
+       	let message = yield websocketStatus(addr);
        	if ( message == null ){
-       		console.log("Couldn't contact " + addr)
+       		console.log("Couldn't contact " + host)
        		message = {
-       			"description": "Failed",
-       			"host": addr
+       			"description": name,
+       			"host": addr,
+       			"uptime": "Failed",
        		}
        	} else {
 			message = nodeCreation(message);
@@ -20,7 +23,7 @@ function startUpdateAddress(addr, index){
   		listNodes[index] = message;
 //  		console.log("Updated " + addr)
     });
-    window.setTimeout(function(){startUpdateAddress(addr, index)},
+    window.setTimeout(function(){startUpdateAddress(host, index)},
     	3000 + index * 500)
 }
 
@@ -28,15 +31,15 @@ function startUpdateAddress(addr, index){
  * Update the Status part of the website
  */
 function update() {
-    var numberTraffic = 0;
+    let numberTraffic = 0;
 
-	var nbrNodes = 0;
-	var totalTraffic = 0;
-	var nodes = [];
+	let nbrNodes = 0;
+	let totalTraffic = 0;
+	let nodes = [];
     for (let i = 0; i < listNodes.length; i++) {
-    	var node = window.listNodes[i]
+    	let node = window.listNodes[i]
     	if (node && node.rx_bytes != null){
-        	totalTraffic += trafficHour(node);
+        	totalTraffic += trafficSec(node);
         }
        	nodes.push(node);
     }
@@ -54,7 +57,7 @@ function updateTable(nodes) {
         this.remove();
     });
 
-    const table = $("#status");
+    let table = $("#status");
 
     nodes.forEach(function(node, i) {
     	if (node.server){
@@ -63,14 +66,16 @@ function updateTable(nodes) {
             	"<td>"+ node.connType +"</td>" +
             	"<td>"+ node.port +"</td>" +
             	"<td>"+ displayPrettyDate(node.uptime) +"</td>" +
-            	"<td>"+ trafficHour(node) +"</td>" +
+            	"<td>"+ trafficSec(node) +"</td>" +
             	"<td>" + helperNumberOfServices(node) + "</td>" +
             	"<td>"+ node.version +"</td></tr>");
         } else {
 			table.append("<tr style='color: red'>" +
 				"<td>"+ node.description +"</td>" +
 				"<td>"+ node.host +"</td>" +
-				"<td></td><td></td><td></td><td></td><td></td><td></td>"
+				"<td></td><td></td>"+
+				"<td>"+ node.uptime +"</td>"+
+				"<td></td><td></td><td></td>"
 			);
         }
     });
@@ -94,7 +99,7 @@ function helperNumberOfServices(node) {
  */
 function nodeCreation(message) {
     // Constructor of object node: must put it inside runGenerator(g) because of overshadowing
-    var status = message.system.map.Status.value.field.map;
+    let status = message.system.map.Status.value.field.map;
 //    console.log(status);
     return {
         "available_services": status.Available_Services.value,

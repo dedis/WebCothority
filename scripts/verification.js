@@ -5,7 +5,7 @@
  * @param stringJSON      JSON file as a String
  */
 function verifySignature(fileToVerify, stringJSON) {
-    const objectJSON = getJSONFileInObject(stringJSON);
+    let objectJSON = getJSONFileInObject(stringJSON);
     let hashVerification = false;
     let signatureVerification = false;
     let signature;
@@ -27,7 +27,7 @@ function verifySignature(fileToVerify, stringJSON) {
             aggregate = new Uint8Array(0);
         }
 
-        const hash = nacl.crypto_hash_sha256(bytesToHex(fileToVerify)); // Uint8Array
+        let hash = nacl.crypto_hash_sha256(bytesToHex(fileToVerify)); // Uint8Array
 
         // Verification if the hash of the fileToVerify is the same as the hash of the file inside the JSON file:
         if (hash.length !== 0) {
@@ -45,7 +45,7 @@ function verifySignature(fileToVerify, stringJSON) {
 
         // Verification of the signature with the hash and the aggregate public key:
         if (signature.length !== 0 && hash.length !== 0 && aggregate.length !== 0) {
-            const verification = nacl.crypto_sign_verify_detached(signature, hash, aggregate);
+            let verification = nacl.crypto_sign_verify_detached(signature, hash, aggregate);
             if (verification) {
                 signatureVerification = true;
             }

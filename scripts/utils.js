@@ -93,9 +93,9 @@ function dateToSeconds(date){
 	let t = date.split(/[hm\.]/);
 	// remove milliseconds
 	t.pop();
-	let sec = t.pop();
-	let min = t.pop();
-	let hour = t.pop();
+	let sec = t.pop() || 0;
+	let min = t.pop() || 0;
+	let hour = t.pop() || 0;
 	return hour * 3600 + min * 60 + sec * 1;
 }
 
